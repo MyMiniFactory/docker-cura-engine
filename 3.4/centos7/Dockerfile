@@ -13,6 +13,7 @@ RUN ./configure && make && make install && ldconfig
 WORKDIR /usr/local/
 RUN yum -y install cmake 
 RUN git clone https://github.com/Ultimaker/libArcus.git
+RUN cd libArcus && git checkout 41b8ed7ad40c99a543e39ad696c890b05655978e
 RUN mkdir /usr/local/libArcus/build/ 
 WORKDIR /usr/local/libArcus/build/
 RUN cmake .. -DBUILD_PYTHON=OFF && make && make install
@@ -27,16 +28,16 @@ COPY ./CMakeLists.txt /usr/local/CuraEngine
 #install a good version of gcc
 RUN yum -y install centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
-RUN yum -y install devtoolset-6
+RUN yum -y install devtoolset-7
 WORKDIR /usr/local/CuraEngine/build/
-RUN source scl_source enable devtoolset-6 && cmake .. && make
+RUN source scl_source enable devtoolset-7 && cmake .. && make
 
 FROM centos:7
 
 RUN yum -y install make
 
 # Copy Protobuf
-COPY --from=builder /usr/local/lib/libprotobuf.so.17.0.0 /usr/local/lib/libprotobuf.so.17
+COPY --from=builder /usr/local/lib/libprotobuf.so /usr/local/lib/libprotobuf.so.24
 # Copy libArcus
 COPY --from=builder /usr/local/libArcus/build/libArcus.so.1.1.0 /usr/local/lib/libArcus.so.3
 
